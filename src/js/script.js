@@ -12,38 +12,122 @@ var app = new Vue({
             [null, 3, 1, null, null, null, null, 4, 6],
             [9, null, null, null, 7, null, null, null, null],
             [null, null, null, 4, null, null, 1, null, 9]
-        ]
+        ],
+        generalData: {},
     },
     methods: {
         run: function () {
-            // console.log("run");
-            for (let i = 0; i < 9; i++) {
-                console.log(this.getRow(i, 5));
-                console.log(this.getColumn(i, 3));
+            console.log("run");
+            for (let y = 0; y < 9; y++) {
+                for (let x = 0; x < 9; x++) {
+                    let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                    if (this.square[y][x] === null) {
+                        numbers = this.getSquare(y, x, numbers);
+                        numbers = this.getRow(y, numbers);
+                        numbers = this.getColumn(x, numbers);
+                        if (numbers.length === 1) {
+                            this.setNumb(y, x, numbers[0]);
+                        } else {
+                            this.setGeneralData(y, x, numbers);
+                        }
+                    }
 
-            }
-
-        },
-        getRow: function (row, searchNumber) {
-            console.log("getRow");
-            for (let i = 0; i < 9; i++) {
-
-                if (this.square[row][i] === searchNumber) {
-                    console.log(this.square[row][i]);
-                    console.log(`index: [${row},${i}], number`, this.square[row][i]);
-                    return false;
                 }
             }
-            console.log(`row ${row}`);
-            return true;
+            this.getUniqNumber();
         },
-        getColumn: function (column, searchNumber) {
-            console.log("getColumn");
+        getRow: function (row, numbers) {
+            // console.log(`getRow ${row}, numbers ${numbers}`);
             for (let i = 0; i < 9; i++) {
+                if (this.square[row][i] !== null) {
+                    numbers = this.filter(row, i, numbers);
+                    // numbers = numbers.filter(el => el !== this.square[row][i]);
+                    // console.log(this.square[row][i])
+                }
+            }
+            // console.log(`row ${row}`);
+            return numbers;
+        },
+        getColumn: function (column, numbers) {
+            // console.log("getColumn");
+            for (let i = 0; i < 9; i++) {
+                if (this.square[i][column] !== null) {
+                    numbers = this.filter(i, column, numbers);
+                    // numbers = numbers.filter(el => el !== this.square[i][column]);
+                }
+            }
+            return numbers;
+        },
+        getSquare: function (y, x, numbers) {
 
-                if (this.square[i][column] === searchNumber) {
-                    console.log(`index: [${i},${column}], number`, this.square[i][column]);
-                    return false;
+            x = x <= 2 ? 0 : Math.trunc(x / 3) * 3;
+            y = y <= 2 ? 0 : Math.trunc(y / 3) * 3;
+
+            for (let i = y; i < y + 3; i++) {
+                for (let j = x; j < x + 3; j++) {
+                    numbers = this.filter(i, j, numbers);
+                }
+            }
+            // console.log(`numbers `, numbers);
+            return numbers;
+        },
+        filter: function (y, x, numbers) {
+            numbers = numbers.filter(el => el !== this.square[y][x]);
+            return numbers;
+        },
+        setNumb: function (y, x, numb) {
+            Vue.set(this.square[y], x, numb);
+        },
+        reset: function () {
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j < 9; j++) {
+                    Vue.set(this.square[i], j, null);
+                }
+            }
+        },
+        getNumb: function (y, x) {
+            this.generalData[y][x];
+
+        },
+        setGeneralData: function (y, x, numbers) {
+            // console.log(`cell ${y} ${x}`, numbers);
+            this.generalData[`${String(y) + String(x)}`] = {};
+            this.generalData[`${String(y) + String(x)}`]['y'] = y;
+            this.generalData[`${String(y) + String(x)}`]['x'] = x;
+            this.generalData[`${String(y) + String(x)}`]['numbers'] = numbers
+        },
+        getUniqNumber: function () {
+            // TODO: хрень, сократить
+            for (let key in this.generalData) {
+                //console.log(this.generalData[key]);
+                x = this.generalData[key].x <= 2 ? 0 : Math.trunc(this.generalData[key].x / 3) * 3;
+                y = this.generalData[key].y <= 2 ? 0 : Math.trunc(this.generalData[key].y / 3) * 3;
+                console.log('squad');
+                let squad = {}
+                for (let i = y; i < y + 3; i++) {
+                    for (let j = x; j < x + 3; j++) {
+                        if (this.square[i][j] === null) {
+                            console.log(`y: ${i}, x: ${j}, numbers ${this.generalData[`${String(i) + String(j)}`].numbers}`);
+                            squad[`${String(i) + String(j)}`] = this.generalData[`${String(i) + String(j)}`];
+                        }
+
+                    }
+                }
+                console.log(squad);
+                let arr = [];
+                for (const key in squad) {
+                    arr = arr.concat(squad[key].numbers).sort();
+
+                }
+                console.log('arr', arr);
+                let n = arr.filter((item, i, ar) => ar.filter(el => el === item).length === 1);
+
+                for (const key in squad) {
+                    if (n.length === 1 && squad[key].numbers.find(el => el === n[0])) {
+                        console.log('n ', n[0]);
+                        this.setNumb(squad[key].y, squad[key].x, n[0]);
+                    }
+
                 }
             }
         }
