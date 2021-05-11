@@ -10,13 +10,25 @@ var app = new Vue({
             [null, null, null, 7, null, 8, null, 3, null],
             [3, 2, 7, 5, null, 4, 8, null, 1],
             [null, 3, 1, null, null, null, null, 4, 6],
-            [9, null, null, null, 7, null, null, null, null],
+            [9, null, null, null, 7, null, 3, null, null],
             [null, null, null, 4, null, null, 1, null, 9]
         ],
         generalData: {},
+        // square: [
+        //     [null, 7, 9, null, 4, null, 5, null, null],
+        //     [1, 8, null, 3, 5, null, null, null, null],
+        //     [null, null, null, 1, null, null, null, 6, null],
+        //     [4, 1, null, 2, null, 9, 6, 7, 5],
+        //     [null, null, null, 7, null, 8, null, 3, null],
+        //     [3, 2, 7, 5, null, 4, 8, null, 1],
+        //     [null, 3, 1, null, null, null, null, 4, 6],
+        //     [9, null, null, null, 7, null, null, null, null],
+        //     [null, null, null, 4, null, null, 1, null, 9]
+        // ],
     },
     methods: {
         run: function () {
+            // this.generalData = {}
             console.log("run");
             for (let y = 0; y < 9; y++) {
                 for (let x = 0; x < 9; x++) {
@@ -26,7 +38,10 @@ var app = new Vue({
                         numbers = this.getRow(y, numbers);
                         numbers = this.getColumn(x, numbers);
                         if (numbers.length === 1) {
+                            // TODO: перписать, удалить рекурсию, выполнить циклы полностью
                             this.setNumb(y, x, numbers[0]);
+                            this.generalData = {}
+                            this.run()
                         } else {
                             this.setGeneralData(y, x, numbers);
                         }
@@ -34,7 +49,9 @@ var app = new Vue({
 
                 }
             }
+            console.log(this.generalData);
             this.getUniqNumber();
+
         },
         getRow: function (row, numbers) {
             // console.log(`getRow ${row}, numbers ${numbers}`);
@@ -107,25 +124,28 @@ var app = new Vue({
                 for (let i = y; i < y + 3; i++) {
                     for (let j = x; j < x + 3; j++) {
                         if (this.square[i][j] === null) {
-                            console.log(`y: ${i}, x: ${j}, numbers ${this.generalData[`${String(i) + String(j)}`].numbers}`);
+                            //console.log(`y: ${i}, x: ${j}, numbers ${this.generalData[`${String(i) + String(j)}`].numbers}`);
                             squad[`${String(i) + String(j)}`] = this.generalData[`${String(i) + String(j)}`];
                         }
 
                     }
                 }
-                console.log(squad);
+                // console.log(squad);
                 let arr = [];
                 for (const key in squad) {
                     arr = arr.concat(squad[key].numbers).sort();
 
                 }
-                console.log('arr', arr);
+                //console.log('arr', arr);
                 let n = arr.filter((item, i, ar) => ar.filter(el => el === item).length === 1);
 
                 for (const key in squad) {
                     if (n.length === 1 && squad[key].numbers.find(el => el === n[0])) {
-                        console.log('n ', n[0]);
+                        console.log(`n = ${n[0]}`, `y = ${squad[key].y + 1}`, `x = ${squad[key].x + 1}`);
+                        // TODO: перписать, удалить вызов метода run, выполнить цикл полностью
                         this.setNumb(squad[key].y, squad[key].x, n[0]);
+                        this.generalData = {}
+                        this.run()
                     }
 
                 }

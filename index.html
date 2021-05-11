@@ -40,13 +40,17 @@
             font-size: 2em;
             font-weight: 700;
         }
+
+        .numb__null {
+            font-size: 0.5em;
+        }
     </style>
 
     <div class="container mt-4">
         <div id="app" class="wrapper">
             <div class="rows" v-for="lines in square">
                 <div class="square border" v-for="dot in lines">
-                    <span v-if="dot==null" class="numb"> </span>
+                    <span v-if="dot==null" class="numb__null"> </span>
                     <span v-else class="numb">{{ dot }}</span>
                 </div>
             </div>
